@@ -2,14 +2,18 @@ package com.aralar.demo.controllers;
 
 import com.aralar.demo.models.Todo;
 import com.aralar.demo.repositories.TodoRepository;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.naming.Binding;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +30,7 @@ public class TodoController {
     public ModelAndView list(){
           return new ModelAndView(
                   "todo/list",
-                  Map.of("todos", todoRepository.findAll())
+                  Map.of("todos", todoRepository.findAll(Sort.by("deadLine")))
           );
     }
 
@@ -36,7 +40,10 @@ public class TodoController {
     }
 
     @PostMapping("/create")
-    public String create(Todo todo) {
+    public String create(@Valid Todo todo, BindingResult result) {
+        if (result.hasErrors()) {
+            return "todo/form";
+        }
         todoRepository.save(todo);
         return "redirect:/";
     }
@@ -51,7 +58,10 @@ public class TodoController {
     }
 
     @PostMapping("/edit/{id}")
-    public String edit(Todo todo) {
+    public String edit(@Valid Todo todo, BindingResult result) {
+        if (result.hasErrors()) {
+            return "todo/form";
+        }
         todoRepository.save(todo);
         return "redirect:/";
     }
@@ -68,6 +78,18 @@ public class TodoController {
     @PostMapping("/delete/{id}")
     public String delete(Todo todo) {
         todoRepository.delete(todo);
+        return "redirect:/";
+    }
+
+    @PostMapping("/finish/{id}")
+    public String finish(@PathVariable Long id) {
+        var optionalTodo = todoRepository.findById(id);
+        if (optionalTodo.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        var todo = optionalTodo.get();
+        todo.markHasFinished();
+        todoRepository.save(todo);
         return "redirect:/";
     }
 }
