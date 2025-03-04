@@ -14,9 +14,14 @@
 </nav>
 
 <main class="container">
-  <h2>Nova tarefa</h2>
+  <h2>
+    <span th:unless="${todo.id}">Nova</span>
+    <span th:if="${todo.id}">Editar</span>
+    Tarefa
+  </h2>
 
   <form method="POST" th:object="${todo}">
+    <input type="hidden" th:field="*{id}">
     <div class="mb-3">
       <label for="title" class="form-label">Tíulo</label>
       <input type="text" class="form-control" id="title" th:field="*{title}">

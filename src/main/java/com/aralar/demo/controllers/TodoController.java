@@ -51,8 +51,7 @@ public class TodoController {
     }
 
     @PostMapping("/edit/{id}")
-    public String edit(@PathVariable Long id, Todo todo) {
-        todo.setId(id);
+    public String edit(Todo todo) {
         todoRepository.save(todo);
         return "redirect:/";
     }
